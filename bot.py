@@ -82,20 +82,28 @@ api = tweepy.API(auth, wait_on_rate_limit=True,
     wait_on_rate_limit_notify=True)
 # api.update_status("Test tweet from Tweepy Python")
 
-movie = clown(1981)
+year = 1980
+movie = clown(1980)
 title = movie["title"]
 director = movie["director"]
 release_date = movie["release-date"]
 poster = ""
+media = None
 if "poster" in movie:
     poster = movie["poster"]
     response = requests.request("GET",poster)
     with open('poster.png', 'wb') as f:
         f.write(response.content)
     media = api.media_upload("poster.png")
-tweet_format = "%s (%s)\nDirected by %s"
-tweet = tweet_format % (title,release_date,director)
-post_result = api.update_status(status=tweet, media_ids=[media.media_id])
+# tweet_format = "%s (%s)\nDirected by %s"
+# tweet = tweet_format % (title,release_date,director)
+tweet_format = "%s (%s)"
+tweet = tweet_format % (title,str(year))
+if media is not None:
+    post_result = api.update_status(status=tweet, media_ids=[media.media_id])
+else:
+    post_result = api.update_status(tweet)
+
 # querystring ={ "page": "1", "r":"json","y":"1980","type":"movie","s":"clown"}
 # response = requests.request("GET", url, headers=headers, params=querystring)
 # f = open("response.json", "w")
