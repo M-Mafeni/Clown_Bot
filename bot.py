@@ -81,7 +81,7 @@ api = tweepy.API(auth, wait_on_rate_limit=True,
     wait_on_rate_limit_notify=True)
 # api.update_status("Test tweet from Tweepy Python")
 
-year = 1970
+year = 1981
 movie = clown(year)
 if movie is not None:
     title = movie["title"]
