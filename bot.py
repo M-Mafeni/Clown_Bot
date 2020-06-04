@@ -1,7 +1,7 @@
 import requests
 import json
 import tweepy
-
+from os import environ
 
 #maybe a bot that tweets the top 10 imdb movies starting from 1980?
 def getId(name):
@@ -63,7 +63,7 @@ key = f.readline().strip()
 f.close()
 headers = {
     'x-rapidapi-host': "movie-database-imdb-alternative.p.rapidapi.com",
-    'x-rapidapi-key': key
+    'x-rapidapi-key': environ["imdb-key"]
     }
 
 twitter_credentials ={}
@@ -71,10 +71,10 @@ with open("clown-api-keys.json") as json_file:
     twitter_credentials = json.load(json_file)
 
 # Authenticate to Twitter
-auth = tweepy.OAuthHandler(twitter_credentials["api-key"],
-    twitter_credentials["api-key-secret"])
-auth.set_access_token(twitter_credentials["access-token"],
-    twitter_credentials["access-token-secret"])
+auth = tweepy.OAuthHandler(environ["api-key"],
+    environ["api-key-secret"])
+auth.set_access_token(environ["access-token"],
+    environ["access-token-secret"])
 
 # Create API object
 api = tweepy.API(auth, wait_on_rate_limit=True,
