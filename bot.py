@@ -28,10 +28,10 @@ def clown(year):
         for item in info["Search"]:
             poster = item["Poster"]
             title = item["Title"]
+            id = item["imdbID"]
             if poster != "N/A":
                 result["title"] = title
                 result["poster"] = poster
-                id = getId(title)
                 querystring = {"i": id,"type":"movie","r":"json","plot":"short"}
                 response = requests.request("GET", url, headers=headers, params=querystring)
                 info = response.json()
@@ -39,7 +39,6 @@ def clown(year):
                 result["release-date"] = info["Released"]
                 return result
         result["title"] = title
-        id = getId(title)
         querystring = {"i": id,"type":"movie","r":"json","plot":"short"}
         response = requests.request("GET", url, headers=headers, params=querystring)
         info = response.json()
@@ -82,27 +81,28 @@ api = tweepy.API(auth, wait_on_rate_limit=True,
     wait_on_rate_limit_notify=True)
 # api.update_status("Test tweet from Tweepy Python")
 
-year = 1980
-movie = clown(1980)
-title = movie["title"]
-director = movie["director"]
-release_date = movie["release-date"]
-poster = ""
-media = None
-if "poster" in movie:
-    poster = movie["poster"]
-    response = requests.request("GET",poster)
-    with open('poster.png', 'wb') as f:
-        f.write(response.content)
-    media = api.media_upload("poster.png")
-# tweet_format = "%s (%s)\nDirected by %s"
-# tweet = tweet_format % (title,release_date,director)
-tweet_format = "%s (%s)"
-tweet = tweet_format % (title,str(year))
-if media is not None:
-    post_result = api.update_status(status=tweet, media_ids=[media.media_id])
-else:
-    post_result = api.update_status(tweet)
+year = 1970
+movie = clown(year)
+if movie is not None:
+    title = movie["title"]
+    director = movie["director"]
+    release_date = movie["release-date"]
+    poster = ""
+    media = None
+    if "poster" in movie:
+        poster = movie["poster"]
+        response = requests.request("GET",poster)
+        with open('poster.png', 'wb') as f:
+            f.write(response.content)
+        media = api.media_upload("poster.png")
+    tweet_format = "%s (%s)\nDirected by %s"
+    tweet = tweet_format % (title,year,director)
+    # tweet_format = "%s (%s)"
+    # tweet = tweet_format % (title,str(year))
+    if media is not None:
+        post_result = api.update_status(status=tweet, media_ids=[media.media_id])
+    else:
+        post_result = api.update_status(tweet)
 
 # querystring ={ "page": "1", "r":"json","y":"1980","type":"movie","s":"clown"}
 # response = requests.request("GET", url, headers=headers, params=querystring)
