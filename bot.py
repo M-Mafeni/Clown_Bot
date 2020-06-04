@@ -1,5 +1,6 @@
 import requests
 import json
+import tweepy
 
 #maybe a bot that tweets the top 10 imdb movies starting from 1980?
 def getId(name):
@@ -51,7 +52,22 @@ headers = {
     'x-rapidapi-key': key
     }
 
-print(clown(1970))
+twitter_credentials ={}
+with open("clown-api-keys.json") as json_file:
+    twitter_credentials = json.load(json_file)
+
+# Authenticate to Twitter
+auth = tweepy.OAuthHandler(twitter_credentials["api-key"],
+    twitter_credentials["api-key-secret"])
+auth.set_access_token(twitter_credentials["access-token"],
+    twitter_credentials["access-token-secret"])
+
+# Create API object
+api = tweepy.API(auth, wait_on_rate_limit=True,
+    wait_on_rate_limit_notify=True)
+api.update_status("Test tweet from Tweepy Python")
+
+# print(clown(1971))
 # querystring ={ "page": "1", "r":"json","y":"1980","type":"movie","s":"clown"}
 # response = requests.request("GET", url, headers=headers, params=querystring)
 # f = open("response.json", "w")
