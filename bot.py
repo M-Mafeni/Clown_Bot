@@ -2,6 +2,7 @@ import requests
 import json
 import tweepy
 
+
 #maybe a bot that tweets the top 10 imdb movies starting from 1980?
 def getId(name):
     querystring ={ "page": "1", "r":"json","s": name}
@@ -22,14 +23,28 @@ def clown(year):
     info = response.json()
     # f = open("response.json", "w")
     # f.write(response.text);
+    result = {}
     if "Search" in info:
         for item in info["Search"]:
             poster = item["Poster"]
             title = item["Title"]
             if poster != "N/A":
-                result = {"title":title,"poster": poster}
+                result["title"] = title
+                result["poster"] = poster
+                id = getId(title)
+                querystring = {"i": id,"type":"movie","r":"json","plot":"short"}
+                response = requests.request("GET", url, headers=headers, params=querystring)
+                info = response.json()
+                result["director"] =  info["Director"]
+                result["release-date"] = info["Released"]
                 return result
-        result = {"title":title}
+        result["title"] = title
+        id = getId(title)
+        querystring = {"i": id,"type":"movie","r":"json","plot":"short"}
+        response = requests.request("GET", url, headers=headers, params=querystring)
+        info = response.json()
+        result["director"] =  info["Director"]
+        result["release-date"] = info["Released"]
         return result
 
 #given the name of a tv show return whether it has a movie
@@ -65,9 +80,22 @@ auth.set_access_token(twitter_credentials["access-token"],
 # Create API object
 api = tweepy.API(auth, wait_on_rate_limit=True,
     wait_on_rate_limit_notify=True)
-api.update_status("Test tweet from Tweepy Python")
+# api.update_status("Test tweet from Tweepy Python")
 
-# print(clown(1971))
+movie = clown(1981)
+title = movie["title"]
+director = movie["director"]
+release_date = movie["release-date"]
+poster = ""
+if "poster" in movie:
+    poster = movie["poster"]
+    response = requests.request("GET",poster)
+    with open('poster.png', 'wb') as f:
+        f.write(response.content)
+    media = api.media_upload("poster.png")
+tweet_format = "%s (%s)\nDirected by %s"
+tweet = tweet_format % (title,release_date,director)
+post_result = api.update_status(status=tweet, media_ids=[media.media_id])
 # querystring ={ "page": "1", "r":"json","y":"1980","type":"movie","s":"clown"}
 # response = requests.request("GET", url, headers=headers, params=querystring)
 # f = open("response.json", "w")
