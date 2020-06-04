@@ -2,6 +2,8 @@ import requests
 import json
 import tweepy
 from os import environ
+import time
+
 
 #maybe a bot that tweets the top 10 imdb movies starting from 1980?
 def getId(name):
@@ -58,17 +60,17 @@ def test():
 
 url = "https://movie-database-imdb-alternative.p.rapidapi.com/"
 
-f = open("api-key.txt", "r")
-key = f.readline().strip()
-f.close()
+# f = open("api-key.txt", "r")
+# key = f.readline().strip()
+# f.close()
 headers = {
     'x-rapidapi-host': "movie-database-imdb-alternative.p.rapidapi.com",
     'x-rapidapi-key': environ["imdb-key"]
     }
 
-twitter_credentials ={}
-with open("clown-api-keys.json") as json_file:
-    twitter_credentials = json.load(json_file)
+# twitter_credentials ={}
+# with open("clown-api-keys.json") as json_file:
+#     twitter_credentials = json.load(json_file)
 
 # Authenticate to Twitter
 auth = tweepy.OAuthHandler(environ["api-key"],
@@ -81,28 +83,37 @@ api = tweepy.API(auth, wait_on_rate_limit=True,
     wait_on_rate_limit_notify=True)
 # api.update_status("Test tweet from Tweepy Python")
 
-year = 1981
-movie = clown(year)
-if movie is not None:
-    title = movie["title"]
-    director = movie["director"]
-    release_date = movie["release-date"]
-    poster = ""
-    media = None
-    if "poster" in movie:
-        poster = movie["poster"]
-        response = requests.request("GET",poster)
-        with open('poster.png', 'wb') as f:
-            f.write(response.content)
-        media = api.media_upload("poster.png")
-    tweet_format = "%s (%s)\nDirected by %s"
-    tweet = tweet_format % (title,year,director)
-    # tweet_format = "%s (%s)"
-    # tweet = tweet_format % (title,str(year))
-    if media is not None:
-        post_result = api.update_status(status=tweet, media_ids=[media.media_id])
-    else:
-        post_result = api.update_status(tweet)
+def post_clown(year):
+    movie = clown(year)
+    if movie is not None:
+        title = movie["title"]
+        director = movie["director"]
+        release_date = movie["release-date"]
+        poster = ""
+        media = None
+        if "poster" in movie:
+            poster = movie["poster"]
+            response = requests.request("GET",poster)
+            with open('poster.png', 'wb') as f:
+                f.write(response.content)
+            media = api.media_upload("poster.png")
+        tweet_format = "%s (%s)\nDirected by %s"
+        tweet = tweet_format % (title,year,director)
+        # tweet_format = "%s (%s)"
+        # tweet = tweet_format % (title,str(year))
+        if media is not None:
+            post_result = api.update_status(status=tweet, media_ids=[media.media_id])
+        else:
+            post_result = api.update_status(tweet)
+year = 1971
+INTERVAL = 60 * 60 * 6   # tweet every 6 hours
+while True:
+    print("posting clown movie from %d" % year)
+    post_clown(year)
+    year += 1
+    if year > 2020:
+        year = 1971
+    time.sleep(INTERVAL)
 
 # querystring ={ "page": "1", "r":"json","y":"1980","type":"movie","s":"clown"}
 # response = requests.request("GET", url, headers=headers, params=querystring)
