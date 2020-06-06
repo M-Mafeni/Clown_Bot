@@ -105,14 +105,14 @@ def post_clown(year):
             post_result = api.update_status(status=tweet, media_ids=[media.media_id])
         else:
             post_result = api.update_status(tweet)
-year = 1971
-INTERVAL = 60 * 60 * 6   # tweet every 6 hours
+year = 1976
+INTERVAL = 60 * 60 * 4   # tweet every 4 hours
 while True:
     print("posting clown movie from %d" % year)
     post_clown(year)
     year += 1
     if year > 2020:
-        year = 1971
+        year = 1976
     time.sleep(INTERVAL)
 
 # querystring ={ "page": "1", "r":"json","y":"1980","type":"movie","s":"clown"}
